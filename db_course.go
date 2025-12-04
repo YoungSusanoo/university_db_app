@@ -1,7 +1,7 @@
 package main
 
 import (
-	"db_course/application"
+	"db_course/internal/application"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
