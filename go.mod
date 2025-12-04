@@ -1,4 +1,4 @@
-module db_course
+module university_app
 
 go 1.25.4
 
