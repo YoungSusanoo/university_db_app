@@ -1,14 +1,18 @@
 package main
 
 import (
+	"db_course/application"
+
+	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
-	"fyne.io/fyne/v2/widget"
 )
 
 func main() {
-	a := app.New()
-	w := a.NewWindow("БОЛЬШОЙ ХУЙ")
+	myApp := app.New()
+	myWindow := myApp.NewWindow("Canvas")
 
-	w.SetContent(widget.NewLabel("Hello World!"))
-	w.ShowAndRun()
+	tabs := application.GetLoginScreen()
+	myWindow.SetContent(tabs)
+	myWindow.Resize(fyne.NewSize(100, 100))
+	myWindow.ShowAndRun()
 }
