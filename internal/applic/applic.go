@@ -22,7 +22,12 @@ func NewApp() *App {
 	return &App{a, w, false}
 }
 
-func (a *App) ShowLoginScreen() {
+func (a *App) Run() {
+	a.showLoginScreen()
+	a.window.ShowAndRun()
+}
+
+func (a *App) showLoginScreen() {
 	login := widget.NewEntry()
 	password := widget.NewPasswordEntry()
 
