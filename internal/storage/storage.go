@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/jackc/pgx/v5/pgxpool"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type Storage struct {
@@ -21,4 +22,19 @@ func NewStorage(connection string) (*Storage, error) {
 		return nil, err
 	}
 	return &Storage{pool}, nil
+}
+
+func (s *Storage) HashUser(login, password string) error {
+	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.MinCost)
+	if err != nil {
+		return err
+	}
+
+	query := `INSERT INTO users (login, password) VALUES ($1, $2)`
+
+	_, err = s.pool.Query(context.Background(), query, login, string(hash))
+	if err != nil {
+		return err
+	}
+	return nil
 }

@@ -2,33 +2,22 @@ package storage
 
 import (
 	"context"
+	"university_app/internal/models"
 
 	"golang.org/x/crypto/bcrypt"
 )
 
-func (s *Storage) HashUser(login, password string) error {
-	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.MinCost)
-	if err != nil {
-		return err
-	}
-
-	query := `INSERT INTO users (login, password) VALUES ($1, $2)`
-
-	_, err = s.pool.Query(context.Background(), query, login, string(hash))
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func (s *Storage) Authorize(login, password string) (bool, error) {
-	query := `SELECT password FROM users WHERE login = $1 LIMIT 1`
+func (s *Storage) Authorize(login, password string) (*models.User, error) {
+	query := `SELECT password, is_admin FROM users WHERE login = $1 LIMIT 1`
 	var hash string
-	_ = s.pool.QueryRow(context.Background(), query, login).Scan(&hash)
+	var isAdmin bool
+	_ = s.pool.QueryRow(context.Background(), query, login).Scan(&hash, &isAdmin)
 
-	err := bcrypt.CompareHashAndPassword([]byte(password), []byte(hash))
+	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
 	if err != nil {
-		return false, nil
+		return nil, err
 	}
-	return true, nil
+
+	user := models.User{login, isAdmin}
+	return &user, nil
 }
