@@ -51,7 +51,7 @@ func (a *App) showLoginScreen() {
 func (a *App) showMainScreen() *container.AppTabs {
 	return container.NewAppTabs(
 		container.NewTabItem("Студенты", a.createStudentsTab()),
-		container.NewTabItem("Преподователи", a.createTeachersTab()),
+		container.NewTabItem("Преподаватели", a.createTeachersTab()),
 		container.NewTabItem("Группы", a.createGroupsTab()),
 		container.NewTabItem("Предметы", a.createSubjectsTab()),
 		container.NewTabItem("Оценки", a.createMarksTab()),
