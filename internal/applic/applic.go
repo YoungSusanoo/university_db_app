@@ -48,16 +48,27 @@ func (a *App) showLoginScreen() {
 	a.window.ShowAndRun()
 }
 
-func (a *App) authorize(login, password string) error {
+func (a *App) showMainScreen() *container.AppTabs {
+	return container.NewAppTabs(
+		container.NewTabItem("Студенты", a.createStudentsTab()),
+		container.NewTabItem("Преподователи", a.createTeachersTab()),
+		container.NewTabItem("Группы", a.createGroupsTab()),
+		container.NewTabItem("Предметы", a.createSubjectsTab()),
+		container.NewTabItem("Оценки", a.createMarksTab()),
+	)
+}
+
+func (a *App) authorize(login, password string) {
 	var err error
 	a.db, err = storage.NewStorage(fmt.Sprintf("postgres://%s:%s@localhost:5432/Megatron?sslmode=disable", login, password))
 	if err != nil {
 		dialog.ShowError(err, a.window)
-		return err
+		return
 	}
 	a.user, err = a.db.Authorize(login, password)
 	if err != nil {
 		dialog.ShowError(err, a.window)
+		return
 	}
-	return nil
+	a.window.SetContent(a.showMainScreen())
 }
