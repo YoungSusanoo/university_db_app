@@ -36,3 +36,14 @@ func (s *Storage) GetSubjects() ([]models.Subject, error) {
 	}
 	return subjects, nil
 }
+
+func (s *Storage) GetStudents() ([]models.Student, error) {
+	query := `SELECT id, first_name, last_name, father_name, group_id FROM people WHERE type = 'S'`
+	rows, err := s.pool.Query(context.Background(), query)
+	if err != nil {
+		return nil, err
+	}
+
+	students, err := pgx.CollectRows(rows, pgx.RowToStructByPos[models.Student])
+	return students, err
+}

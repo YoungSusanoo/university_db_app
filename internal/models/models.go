@@ -5,22 +5,19 @@ type User struct {
 	IsAdmin bool
 }
 
-type Credentials struct {
+type Student struct {
 	Id         int64
 	FirstName  string
 	LastName   string
 	FatherName string
-}
-
-type Student struct {
-	Id      int64
-	Name    Credentials
-	GroupId int
+	GroupId    int64
 }
 
 type Teacher struct {
-	Id   int64
-	Name Credentials
+	Id         int64
+	FirstName  string
+	LastName   string
+	FatherName string
 }
 
 type Subject struct {
