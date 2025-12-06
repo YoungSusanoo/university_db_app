@@ -10,7 +10,7 @@ type Student struct {
 	FirstName  string
 	LastName   string
 	FatherName string
-	GroupId    int64
+	Group      string
 }
 
 type Teacher struct {

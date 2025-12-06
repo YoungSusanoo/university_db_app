@@ -45,7 +45,7 @@ func (a *App) createStudentsTab() fyne.CanvasObject {
 				case 3:
 					label.SetText(stud.FatherName)
 				case 4:
-					label.SetText(strconv.FormatInt(stud.GroupId, 10))
+					label.SetText(stud.Group)
 				}
 			}
 		},
