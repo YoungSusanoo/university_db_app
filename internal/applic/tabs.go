@@ -11,6 +11,7 @@ import (
 const (
 	subjectRows = 2
 	studentRows = 5
+	teacherRows = 4
 )
 
 func (a *App) createStudentsTab() fyne.CanvasObject {
@@ -53,7 +54,40 @@ func (a *App) createStudentsTab() fyne.CanvasObject {
 }
 
 func (a *App) createTeachersTab() fyne.CanvasObject {
-	return widget.NewLabel("Преподы")
+	teachers, err := a.db.GetTeachers()
+	if err != nil {
+		return widget.NewLabel("Не удалось загрузить данные")
+	}
+
+	table := widget.NewTable(
+		func() (int, int) {
+			return len(teachers) + 1, teacherRows
+		},
+		func() fyne.CanvasObject {
+			return widget.NewLabel("template")
+		},
+		func(tci widget.TableCellID, co fyne.CanvasObject) {
+			label := co.(*widget.Label)
+			if tci.Row == 0 {
+				headers := []string{"Id", "Имя", "Фамилия", "Отчество"}
+				label.SetText(headers[tci.Col])
+				label.TextStyle.Bold = true
+			} else {
+				teach := teachers[tci.Row-1]
+				switch tci.Col {
+				case 0:
+					label.SetText(strconv.FormatInt(teach.Id, 10))
+				case 1:
+					label.SetText(teach.FirstName)
+				case 2:
+					label.SetText(teach.LastName)
+				case 3:
+					label.SetText(teach.FatherName)
+				}
+			}
+		},
+	)
+	return container.NewBorder(nil, nil, nil, nil, table)
 }
 
 func (a *App) createGroupsTab() fyne.CanvasObject {
