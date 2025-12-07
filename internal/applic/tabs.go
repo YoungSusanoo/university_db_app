@@ -14,10 +14,10 @@ const (
 	teacherRows = 4
 )
 
-func (a *App) createStudentsTab() fyne.CanvasObject {
+func (a *App) createStudentsTab() *container.TabItem {
 	students, err := a.db.GetStudents()
 	if err != nil {
-		return widget.NewLabel("Не удалось загрузить данные")
+		return container.NewTabItem("Студенты", widget.NewLabel("Не удалось загрузить данные"))
 	}
 
 	table := widget.NewTable(
@@ -50,13 +50,13 @@ func (a *App) createStudentsTab() fyne.CanvasObject {
 			}
 		},
 	)
-	return container.NewBorder(nil, nil, nil, nil, table)
+	return container.NewTabItem("Студенты", container.NewBorder(nil, nil, nil, nil, table))
 }
 
-func (a *App) createTeachersTab() fyne.CanvasObject {
+func (a *App) createTeachersTab() *container.TabItem {
 	teachers, err := a.db.GetTeachers()
 	if err != nil {
-		return widget.NewLabel("Не удалось загрузить данные")
+		return container.NewTabItem("Преподаватели", widget.NewLabel("Не удалось загрузить данные"))
 	}
 
 	table := widget.NewTable(
@@ -87,17 +87,17 @@ func (a *App) createTeachersTab() fyne.CanvasObject {
 			}
 		},
 	)
-	return container.NewBorder(nil, nil, nil, nil, table)
+	return container.NewTabItem("Преподаватели", container.NewBorder(nil, nil, nil, nil, table))
 }
 
-func (a *App) createGroupsTab() fyne.CanvasObject {
-	return widget.NewLabel("Группы")
+func (a *App) createGroupsTab() *container.TabItem {
+	return container.NewTabItem("Группы", widget.NewLabel("Группы"))
 }
 
-func (a *App) createSubjectsTab() fyne.CanvasObject {
+func (a *App) createSubjectsTab() *container.TabItem {
 	subjects, err := a.db.GetSubjects()
 	if err != nil {
-		return widget.NewLabel("Не удалось загрузить данные")
+		return container.NewTabItem("Предметы", widget.NewLabel("Не удалось загрузить данные"))
 	}
 
 	table := widget.NewTable(
@@ -124,9 +124,16 @@ func (a *App) createSubjectsTab() fyne.CanvasObject {
 			}
 		},
 	)
-	return container.NewBorder(nil, nil, nil, nil, table)
+
+	if a.user.IsAdmin {
+		table.OnSelected = func(id widget.TableCellID) {
+			showActions(getSubjectEditForm, deleteSubject, a, subjects[id.Row-1])
+		}
+	}
+
+	return container.NewTabItem("Предметы", container.NewBorder(nil, nil, nil, nil, table))
 }
 
-func (a *App) createMarksTab() fyne.CanvasObject {
-	return widget.NewLabel("Оценки")
+func (a *App) createMarksTab() *container.TabItem {
+	return container.NewTabItem("Оценки", widget.NewLabel("Оценки"))
 }
