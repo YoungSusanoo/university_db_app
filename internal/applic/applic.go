@@ -18,18 +18,24 @@ type App struct {
 	window  fyne.Window
 	db      *storage.Storage
 	user    *models.User
+
+	tabs *container.AppTabs
 }
+
+const (
+	subjectTabIndex = 3
+)
 
 func NewApp() *App {
 	a := app.New()
 	w := a.NewWindow("Сесетевой Город")
 
-	return &App{a, w, nil, nil}
+	app := &App{a, w, nil, nil, nil}
+	return app
 }
 
 func (a *App) Run() {
 	a.showLoginScreen()
-	a.window.ShowAndRun()
 }
 
 func (a *App) showLoginScreen() {
@@ -45,17 +51,23 @@ func (a *App) showLoginScreen() {
 		},
 	}
 	a.window.SetContent(container.NewVBox(widget.NewLabel("Войдите в систему"), form))
+	a.window.Resize(fyne.NewSize(500, 500))
 	a.window.ShowAndRun()
 }
 
 func (a *App) showMainScreen() *container.AppTabs {
-	return container.NewAppTabs(
-		container.NewTabItem("Студенты", a.createStudentsTab()),
-		container.NewTabItem("Преподаватели", a.createTeachersTab()),
-		container.NewTabItem("Группы", a.createGroupsTab()),
-		container.NewTabItem("Предметы", a.createSubjectsTab()),
-		container.NewTabItem("Оценки", a.createMarksTab()),
+	a.tabs = container.NewAppTabs(
+		a.createStudentsTab(),
+		a.createTeachersTab(),
+		a.createGroupsTab(),
+		a.createSubjectsTab(),
+		a.createMarksTab(),
 	)
+	return a.tabs
+}
+
+func (a *App) showError(err error) {
+	dialog.ShowError(err, a.window)
 }
 
 func (a *App) authorize(login, password string) {
