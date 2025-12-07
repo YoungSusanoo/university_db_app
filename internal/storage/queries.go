@@ -26,12 +26,22 @@ func (s *Storage) Authorize(login, password string) (*models.User, error) {
 	return &user, nil
 }
 
-func (s *Storage) GetStudents() ([]models.Student, error) {
-	query := `SELECT people.id, first_name, last_name, father_name, g.name FROM people, groups g WHERE type = 'S' AND g.id = group_id`
+func (s *Storage) GetStudentGroupRelation() (map[string]int64, error) {
+	query := `SELECT name, id FROM groups`
 	rows, err := s.pool.Query(context.Background(), query)
 	if err != nil {
 		return nil, err
 	}
 
-	return pgx.CollectRows(rows, pgx.RowToStructByPos[models.Student])
+	var key string
+	var value int64
+	nameId := make(map[string]int64)
+	_, err = pgx.ForEachRow(rows, []any{&key, &value}, func() error {
+		nameId[key] = value
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return nameId, nil
 }

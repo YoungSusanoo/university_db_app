@@ -23,6 +23,7 @@ type App struct {
 }
 
 const (
+	studentTabIndex = 0
 	teacherTabIndex = 1
 	subjectTabIndex = 3
 )

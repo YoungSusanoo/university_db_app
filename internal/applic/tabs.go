@@ -20,6 +20,7 @@ const (
 func (a *App) createStudentsTab() *container.TabItem {
 	students, err := a.db.GetStudents()
 	if err != nil {
+		a.showError(err)
 		return container.NewTabItem("Студенты", widget.NewLabel("Не удалось загрузить данные"))
 	}
 
@@ -53,7 +54,20 @@ func (a *App) createStudentsTab() *container.TabItem {
 			}
 		},
 	)
-	return container.NewTabItem("Студенты", container.NewBorder(nil, nil, nil, nil, table))
+
+	var topPanel fyne.CanvasObject
+	topPanel = nil
+	if a.user.IsAdmin {
+		topPanel = addAdminTools(
+			showStudentEditForm,
+			showStudentNewForm,
+			deleteStudent,
+			table,
+			a,
+			students,
+		)
+	}
+	return container.NewTabItem("Студенты", container.NewBorder(topPanel, nil, nil, nil, table))
 }
 
 func (a *App) createTeachersTab() *container.TabItem {

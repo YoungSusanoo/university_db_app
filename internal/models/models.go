@@ -36,3 +36,8 @@ type Marks struct {
 	TeacherId int64
 	Value     int
 }
+
+type Group struct {
+	Id   int64
+	Name string
+}
