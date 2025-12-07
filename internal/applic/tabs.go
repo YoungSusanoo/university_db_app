@@ -90,7 +90,20 @@ func (a *App) createTeachersTab() *container.TabItem {
 			}
 		},
 	)
-	return container.NewTabItem("Преподаватели", container.NewBorder(nil, nil, nil, nil, table))
+
+	var topPanel fyne.CanvasObject
+	topPanel = nil
+	if a.user.IsAdmin {
+		topPanel = addAdminTools(
+			showTeacherEditForm,
+			showTeacherNewForm,
+			deleteTeacher,
+			table,
+			a,
+			teachers,
+		)
+	}
+	return container.NewTabItem("Преподаватели", container.NewBorder(topPanel, nil, nil, nil, table))
 }
 
 func (a *App) createGroupsTab() *container.TabItem {
