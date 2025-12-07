@@ -60,7 +60,7 @@ func getSubjectEditForm(a *App, subject models.Subject, actionsDialog *dialog.Cu
 			{Text: "Название", Widget: name},
 		},
 		func(confirm bool) {
-			subjectNew := models.Subject{subject.Id, name.Text}
+			subjectNew := models.Subject{Id: subject.Id, Name: name.Text}
 			err := a.db.UpdateSubject(subject, subjectNew)
 			if err != nil {
 				a.showError(err)
