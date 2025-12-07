@@ -49,26 +49,30 @@ func deleteSubject(a *App, subject models.Subject, actionsDialog *dialog.CustomD
 	}
 }
 
-func getSubjectEditForm(a *App, subject models.Subject, actionsDialog *dialog.CustomDialog) {
+func getNewSubject(a *App, subject *models.Subject) {
 	name := widget.NewEntry()
-
 	dialog.ShowForm(
-		"Редактирование",
+		"Новый предмет",
 		"Сохранить",
 		"Отмена",
 		[]*widget.FormItem{
 			{Text: "Название", Widget: name},
 		},
 		func(confirm bool) {
-			subjectNew := models.Subject{Id: subject.Id, Name: name.Text}
-			err := a.db.UpdateSubject(subject, subjectNew)
-			if err != nil {
-				a.showError(err)
-			} else {
-				a.tabs.Items[subjectTabIndex] = a.createSubjectsTab()
-				actionsDialog.Dismiss()
-			}
+			*subject = models.Subject{Id: subject.Id, Name: name.Text}
 		},
 		a.window,
 	)
+}
+
+func getSubjectEditForm(a *App, subject models.Subject, actionsDialog *dialog.CustomDialog) {
+	var subjectNew models.Subject
+	getNewSubject(a, &subject)
+	err := a.db.UpdateSubject(subject, subjectNew)
+	if err != nil {
+		a.showError(err)
+	} else {
+		a.tabs.Items[subjectTabIndex] = a.createSubjectsTab()
+		actionsDialog.Dismiss()
+	}
 }
