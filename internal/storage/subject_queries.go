@@ -17,6 +17,12 @@ func (s *Storage) GetSubjects() ([]models.Subject, error) {
 	return pgx.CollectRows(rows, pgx.RowToStructByPos[models.Subject])
 }
 
+func (s *Storage) InsertSubject(subject models.Subject) error {
+	query := `INSERT INTO subjects (name) VALUES($1)`
+	_, err := s.pool.Exec(context.Background(), query, subject.Name)
+	return err
+}
+
 func (s *Storage) UpdateSubject(subjectOld, subjectNew models.Subject) error {
 	query := `UPDATE subjects SET name = $1 WHERE id = $2`
 	_, err := s.pool.Exec(context.Background(), query, subjectNew.Name, subjectOld.Id)

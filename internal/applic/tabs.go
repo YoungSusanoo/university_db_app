@@ -5,6 +5,7 @@ import (
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
 )
 
@@ -125,13 +126,19 @@ func (a *App) createSubjectsTab() *container.TabItem {
 		},
 	)
 
+	var topPanel fyne.CanvasObject
+	topPanel = nil
 	if a.user.IsAdmin {
 		table.OnSelected = func(id widget.TableCellID) {
-			showActions(getSubjectEditForm, deleteSubject, a, subjects[id.Row-1])
+			showActions(showSubjectEditForm, deleteSubject, a, subjects[id.Row-1])
 		}
+		btn := widget.NewButton("Добавить", func() {
+			showSubjectNewForm(a)
+		})
+		topPanel = container.New(layout.NewHBoxLayout(), layout.NewSpacer(), btn)
 	}
 
-	return container.NewTabItem("Предметы", container.NewBorder(nil, nil, nil, nil, table))
+	return container.NewTabItem("Предметы", container.NewBorder(topPanel, nil, nil, nil, table))
 }
 
 func (a *App) createMarksTab() *container.TabItem {
