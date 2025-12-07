@@ -15,6 +15,7 @@ const (
 	subjectRows = 2
 	studentRows = 5
 	teacherRows = 4
+	groupsRow   = 2
 )
 
 func (a *App) createStudentsTab() *container.TabItem {
@@ -121,7 +122,50 @@ func (a *App) createTeachersTab() *container.TabItem {
 }
 
 func (a *App) createGroupsTab() *container.TabItem {
-	return container.NewTabItem("Группы", widget.NewLabel("Группы"))
+	groups, err := a.db.GetGroups()
+	if err != nil {
+		return container.NewTabItem("Группы", widget.NewLabel("Не удалось загрузить данные"))
+	}
+
+	table := widget.NewTable(
+		func() (int, int) {
+			return len(groups) + 1, groupsRow
+		},
+		func() fyne.CanvasObject {
+			return widget.NewLabel("template")
+		},
+		func(tci widget.TableCellID, co fyne.CanvasObject) {
+			label := co.(*widget.Label)
+			if tci.Row == 0 {
+				headers := []string{"Id", "Имя"}
+				label.SetText(headers[tci.Col])
+				label.TextStyle.Bold = true
+			} else {
+				group := groups[tci.Row-1]
+				switch tci.Col {
+				case 0:
+					label.SetText(strconv.FormatInt(group.Id, 10))
+				case 1:
+					label.SetText(group.Name)
+				}
+			}
+		},
+	)
+
+	var topPanel fyne.CanvasObject
+	topPanel = nil
+	if a.user.IsAdmin {
+		topPanel = addAdminTools(
+			showGroupEditForm,
+			showGroupNewForm,
+			deleteGroup,
+			table,
+			a,
+			groups,
+		)
+	}
+
+	return container.NewTabItem("Группы", container.NewBorder(topPanel, nil, nil, nil, table))
 }
 
 func (a *App) createSubjectsTab() *container.TabItem {

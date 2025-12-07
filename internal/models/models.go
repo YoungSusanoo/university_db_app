@@ -1,7 +1,7 @@
 package models
 
 type Model interface {
-	Student | Teacher | Subject | Marks
+	Student | Teacher | Subject | Marks | Group
 }
 
 type User struct {
