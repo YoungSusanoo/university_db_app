@@ -9,10 +9,14 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
-func showActions[T models.Model](form func(*App, T, *dialog.CustomDialog), delete func(*App, T, *dialog.CustomDialog), a *App, model T) {
+func showActions[T models.Model](
+	form func(*App, T, *dialog.CustomDialog),
+	delete func(*App, T, *dialog.CustomDialog),
+	a *App,
+	model T,
+) {
 	content := container.NewVBox(
 		widget.NewLabelWithStyle("Действия", fyne.TextAlignCenter, fyne.TextStyle{Bold: true}),
-		widget.NewSeparator(),
 	)
 
 	actionsDialog := dialog.NewCustom("Выберите действие", "Закрыть", content, a.window)
@@ -34,7 +38,6 @@ func showActions[T models.Model](form func(*App, T, *dialog.CustomDialog), delet
 			a.window,
 		)
 	})
-	content.Add(editBtn)
-	content.Add(deleteBtn)
+	content.Add(container.NewHBox(editBtn, deleteBtn))
 	actionsDialog.Show()
 }

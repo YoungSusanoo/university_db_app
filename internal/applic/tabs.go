@@ -2,9 +2,11 @@ package applic
 
 import (
 	"strconv"
+	"university_app/internal/models"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
 )
@@ -129,13 +131,14 @@ func (a *App) createSubjectsTab() *container.TabItem {
 	var topPanel fyne.CanvasObject
 	topPanel = nil
 	if a.user.IsAdmin {
-		table.OnSelected = func(id widget.TableCellID) {
-			showActions(showSubjectEditForm, deleteSubject, a, subjects[id.Row-1])
-		}
-		btn := widget.NewButton("Добавить", func() {
-			showSubjectNewForm(a)
-		})
-		topPanel = container.New(layout.NewHBoxLayout(), layout.NewSpacer(), btn)
+		topPanel = addAdminTools(
+			showSubjectEditForm,
+			showSubjectNewForm,
+			deleteSubject,
+			table,
+			a,
+			subjects,
+		)
 	}
 
 	return container.NewTabItem("Предметы", container.NewBorder(topPanel, nil, nil, nil, table))
@@ -143,4 +146,21 @@ func (a *App) createSubjectsTab() *container.TabItem {
 
 func (a *App) createMarksTab() *container.TabItem {
 	return container.NewTabItem("Оценки", widget.NewLabel("Оценки"))
+}
+
+func addAdminTools[T models.Model](
+	edit func(*App, T, *dialog.CustomDialog),
+	newForm func(*App),
+	delete func(*App, T, *dialog.CustomDialog),
+	table *widget.Table,
+	a *App,
+	objects []T,
+) fyne.CanvasObject {
+	table.OnSelected = func(id widget.TableCellID) {
+		showActions(edit, delete, a, objects[id.Row-1])
+	}
+	btn := widget.NewButton("Добавить", func() {
+		newForm(a)
+	})
+	return container.New(layout.NewHBoxLayout(), layout.NewSpacer(), btn)
 }
