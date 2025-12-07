@@ -23,16 +23,6 @@ func (s *Storage) Authorize(login, password string) (*models.User, error) {
 	return &user, nil
 }
 
-func (s *Storage) GetSubjects() ([]models.Subject, error) {
-	query := `SELECT * FROM subjects`
-	rows, err := s.pool.Query(context.Background(), query)
-	if err != nil {
-		return nil, err
-	}
-
-	return pgx.CollectRows(rows, pgx.RowToStructByPos[models.Subject])
-}
-
 func (s *Storage) GetStudents() ([]models.Student, error) {
 	query := `SELECT people.id, first_name, last_name, father_name, g.name FROM people, groups g WHERE type = 'S' AND g.id = group_id`
 	rows, err := s.pool.Query(context.Background(), query)
