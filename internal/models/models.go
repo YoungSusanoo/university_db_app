@@ -1,5 +1,9 @@
 package models
 
+type Model interface {
+	Student | Teacher | Subject | Marks
+}
+
 type User struct {
 	Name    string
 	IsAdmin bool
