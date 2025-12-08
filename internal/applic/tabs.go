@@ -57,6 +57,11 @@ func (a *App) createStudentsTab() *container.TabItem {
 		},
 	)
 
+	table.SetColumnWidth(0, 50)
+	table.SetColumnWidth(1, 100)
+	table.SetColumnWidth(2, 100)
+	table.SetColumnWidth(3, 100)
+
 	var topPanel fyne.CanvasObject
 	topPanel = nil
 	if a.user.IsAdmin {
