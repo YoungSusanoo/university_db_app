@@ -16,7 +16,7 @@ const (
 	studentRows = 5
 	teacherRows = 4
 	groupsRow   = 2
-	marksRow    = 5
+	marksRow    = 6
 )
 
 func (a *App) createStudentsTab() *container.TabItem {
@@ -234,7 +234,7 @@ func (a *App) createMarksTab() *container.TabItem {
 			cell := co.(*fyne.Container)
 			if tci.Row == 0 {
 				cell.RemoveAll()
-				headers := []string{"Id", "Преподаватель", "Студент", "Предмет", "Оценка"}
+				headers := []string{"Id", "Преподаватель", "Студент", "Группа", "Предмет", "Оценка"}
 				cell.Add(widget.NewLabel(headers[tci.Col]))
 			} else {
 				switch tci.Col {
@@ -251,8 +251,11 @@ func (a *App) createMarksTab() *container.TabItem {
 					cell.Objects[2].(*widget.Label).SetText(marks[tci.Row-1].Stud.FatherName)
 				case 3:
 					cell.RemoveAll()
-					cell.Add(widget.NewLabel(marks[tci.Row-1].Subj.Name))
+					cell.Add(widget.NewLabel(marks[tci.Row-1].Stud.Group))
 				case 4:
+					cell.RemoveAll()
+					cell.Add(widget.NewLabel(marks[tci.Row-1].Subj.Name))
+				case 5:
 					cell.RemoveAll()
 					cell.Add(widget.NewLabel(strconv.FormatInt(int64(marks[tci.Row-1].Value), 10)))
 				}
@@ -261,12 +264,24 @@ func (a *App) createMarksTab() *container.TabItem {
 	)
 
 	table.SetColumnWidth(0, 50)
-	table.SetColumnWidth(1, 600)
-	table.SetColumnWidth(2, 600)
-	table.SetColumnWidth(3, 300)
+	table.SetColumnWidth(1, 400)
+	table.SetColumnWidth(2, 400)
+	table.SetColumnWidth(3, 100)
+	table.SetColumnWidth(4, 200)
 
 	var topPanel fyne.CanvasObject
 	topPanel = nil
+	if a.user.IsAdmin {
+		topPanel = addAdminTools(
+			showMarkEditForm,
+			showMarkNewForm,
+			deleteMark,
+			table,
+			a,
+			marks,
+		)
+	}
+
 	return container.NewTabItem("Оценки", container.NewBorder(topPanel, nil, nil, nil, table))
 }
 

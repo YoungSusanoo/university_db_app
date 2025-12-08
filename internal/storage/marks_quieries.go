@@ -28,11 +28,12 @@ func (s *Storage) GetMarks() ([]models.Mark, error) {
 		&stud.FirstName,
 		&stud.LastName,
 		&stud.FatherName,
+		&stud.Group,
 		&subj.Name,
 		&value,
 	},
 		func() error {
-			marks = append(marks, models.Mark{id, stud, teach, subj, value})
+			marks = append(marks, models.Mark{id, teach, stud, subj, value})
 			return nil
 		},
 	)
@@ -40,31 +41,62 @@ func (s *Storage) GetMarks() ([]models.Mark, error) {
 	return marks, err
 }
 
-// func (s *Storage) InsertMark(marks models.Mark) error {
-// 	query := `insert into marks_with_group (first_name, last_name, father_name, name) values($1, $2, $3, $4);`
-// 	_, err := s.pool.Exec(
-// 		context.Background(),
-// 		query,
-// 		marks.FirstName,
-// 		marks.LastName,
-// 		marks.FatherName,
-// 		marks.Group,
-// 	)
-// 	return err
-// }
+func (s *Storage) InsertMark(mark models.Mark) error {
+	query := `insert into marks_with_names (
+		t_first_name, 
+		t_last_name,
+		t_father_name,
+		s_first_name,
+		s_last_name,
+		s_father_name,
+		group_name,
+		subj_name,
+		value)
+		values($1, $2, $3, $4, $5, $6, $7, $8, $9)`
+	_, err := s.pool.Exec(
+		context.Background(),
+		query,
+		mark.Teach.FirstName,
+		mark.Teach.LastName,
+		mark.Teach.FatherName,
+		mark.Stud.FirstName,
+		mark.Stud.LastName,
+		mark.Stud.FatherName,
+		mark.Stud.Group,
+		mark.Subj.Name,
+		mark.Value,
+	)
+	return err
+}
 
-// func (s *Storage) UpdateMark(mark, markNew models.Mark) error {
-// 	query := `UPDATE people SET first_name = $1, last_name = $2, father_name = $3 WHERE id = $4`
-// 	_, err := s.pool.Exec(
-// 		context.Background(),
-// 		query,
-// 		markNew.FirstName,
-// 		markNew.LastName,
-// 		markNew.FatherName,
-// 		markNew.Id,
-// 	)
-// 	return err
-// }
+func (s *Storage) UpdateMark(mark, markNew models.Mark) error {
+	query := `UPDATE marks_with_names SET 
+		t_first_name = $1, 
+		t_last_name = $2, 
+		t_father_name = $3,
+		s_first_name = $4,
+		s_last_name = $5,
+		s_father_name = $6,
+		group_name = $7,
+		subj_name = $8,
+		value = $9 
+		WHERE id = $10`
+	_, err := s.pool.Exec(
+		context.Background(),
+		query,
+		markNew.Teach.FirstName,
+		markNew.Teach.LastName,
+		markNew.Teach.FatherName,
+		markNew.Stud.FirstName,
+		markNew.Stud.LastName,
+		markNew.Stud.FatherName,
+		markNew.Stud.Group,
+		markNew.Subj.Name,
+		markNew.Value,
+		mark.Id,
+	)
+	return err
+}
 
 func (s *Storage) DeleteMark(mark models.Mark) error {
 	query := `DELETE FROM marks WHERE id = $1`

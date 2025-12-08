@@ -31,8 +31,8 @@ type Subject struct {
 
 type Mark struct {
 	Id    int64
-	Stud  Student
 	Teach Teacher
+	Stud  Student
 	Subj  Subject
 	Value int
 }

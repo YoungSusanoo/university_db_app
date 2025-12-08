@@ -27,6 +27,7 @@ const (
 	teacherTabIndex = 1
 	groupTabIndex   = 2
 	subjectTabIndex = 3
+	markTabIndex    = 4
 )
 
 func NewApp() *App {
