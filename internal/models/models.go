@@ -1,7 +1,7 @@
 package models
 
 type Model interface {
-	Student | Teacher | Subject | Marks | Group
+	Student | Teacher | Subject | Mark | Group
 }
 
 type User struct {
@@ -29,12 +29,12 @@ type Subject struct {
 	Name string
 }
 
-type Marks struct {
-	Id        int64
-	StudentId int64
-	SubjectId int64
-	TeacherId int64
-	Value     int
+type Mark struct {
+	Id    int64
+	Stud  Student
+	Teach Teacher
+	Subj  Subject
+	Value int
 }
 
 type Group struct {
