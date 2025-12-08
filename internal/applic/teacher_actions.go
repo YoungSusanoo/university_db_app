@@ -12,7 +12,7 @@ func deleteTeacher(a *App, teacher models.Teacher, actionsDialog *dialog.CustomD
 	if err != nil {
 		a.showError(err)
 	} else {
-		a.tabs.Items[teacherTabIndex] = a.createTeachersTab()
+		a.refreshTabs()
 		actionsDialog.Dismiss()
 	}
 }

@@ -12,7 +12,7 @@ func deleteStudent(a *App, student models.Student, actionsDialog *dialog.CustomD
 	if err != nil {
 		a.showError(err)
 	} else {
-		a.tabs.Items[studentTabIndex] = a.createStudentsTab()
+		a.refreshTabs()
 		actionsDialog.Dismiss()
 	}
 }

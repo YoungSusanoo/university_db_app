@@ -12,7 +12,7 @@ func deleteGroup(a *App, group models.Group, actionsDialog *dialog.CustomDialog)
 	if err != nil {
 		a.showError(err)
 	} else {
-		a.tabs.Items[groupTabIndex] = a.createGroupsTab()
+		a.refreshTabs()
 		actionsDialog.Dismiss()
 	}
 }

@@ -14,7 +14,7 @@ func deleteMark(a *App, mark models.Mark, actionsDialog *dialog.CustomDialog) {
 	if err != nil {
 		a.showError(err)
 	} else {
-		a.tabs.Items[markTabIndex] = a.createMarksTab()
+		a.refreshTabs()
 		actionsDialog.Dismiss()
 	}
 }

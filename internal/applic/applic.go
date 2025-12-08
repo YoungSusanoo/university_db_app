@@ -88,3 +88,11 @@ func (a *App) authorize(login, password string) {
 	}
 	a.window.SetContent(a.showMainScreen())
 }
+
+func (a *App) refreshTabs() {
+	a.tabs.Items[groupTabIndex] = a.createGroupsTab()
+	a.tabs.Items[markTabIndex] = a.createMarksTab()
+	a.tabs.Items[studentTabIndex] = a.createStudentsTab()
+	a.tabs.Items[subjectTabIndex] = a.createSubjectsTab()
+	a.tabs.Items[teacherTabIndex] = a.createTeachersTab()
+}

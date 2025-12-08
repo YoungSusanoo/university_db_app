@@ -12,7 +12,7 @@ func deleteSubject(a *App, subject models.Subject, actionsDialog *dialog.CustomD
 	if err != nil {
 		a.showError(err)
 	} else {
-		a.tabs.Items[subjectTabIndex] = a.createSubjectsTab()
+		a.refreshTabs()
 		actionsDialog.Dismiss()
 	}
 }
