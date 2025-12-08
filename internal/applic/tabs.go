@@ -12,11 +12,11 @@ import (
 )
 
 const (
-	subjectRows = 2
-	studentRows = 5
-	teacherRows = 4
-	groupsRow   = 2
-	marksRow    = 6
+	subjectCols = 2
+	studentCols = 5
+	teacherCols = 4
+	groupsCols  = 2
+	marksCols   = 6
 )
 
 func (a *App) createStudentsTab() *container.TabItem {
@@ -28,7 +28,7 @@ func (a *App) createStudentsTab() *container.TabItem {
 
 	table := widget.NewTable(
 		func() (int, int) {
-			return len(students) + 1, studentRows
+			return len(students) + 1, studentCols
 		},
 		func() fyne.CanvasObject {
 			return widget.NewLabel("template")
@@ -85,7 +85,7 @@ func (a *App) createTeachersTab() *container.TabItem {
 
 	table := widget.NewTable(
 		func() (int, int) {
-			return len(teachers) + 1, teacherRows
+			return len(teachers) + 1, teacherCols
 		},
 		func() fyne.CanvasObject {
 			return widget.NewLabel("template")
@@ -135,7 +135,7 @@ func (a *App) createGroupsTab() *container.TabItem {
 
 	table := widget.NewTable(
 		func() (int, int) {
-			return len(groups) + 1, groupsRow
+			return len(groups) + 1, groupsCols
 		},
 		func() fyne.CanvasObject {
 			return widget.NewLabel("template")
@@ -182,7 +182,7 @@ func (a *App) createSubjectsTab() *container.TabItem {
 
 	table := widget.NewTable(
 		func() (int, int) {
-			return len(subjects) + 1, subjectRows
+			return len(subjects) + 1, subjectCols
 		},
 		func() fyne.CanvasObject {
 			return widget.NewLabel("template")
@@ -230,7 +230,7 @@ func (a *App) createMarksTab() *container.TabItem {
 
 	table := widget.NewTable(
 		func() (int, int) {
-			return len(marks) + 1, marksRow
+			return len(marks) + 1, marksCols
 		},
 		func() fyne.CanvasObject {
 			return container.NewGridWithColumns(3, widget.NewLabel("t"), widget.NewLabel("t"), widget.NewLabel("t"))
