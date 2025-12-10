@@ -33,6 +33,8 @@ const (
 func NewApp() *App {
 	a := app.New()
 	w := a.NewWindow("Сесетевой Город")
+	w.CenterOnScreen()
+	w.Resize(fyne.NewSize(1000, 800))
 
 	app := &App{a, w, nil, nil, nil}
 	return app

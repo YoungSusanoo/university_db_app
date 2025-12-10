@@ -274,10 +274,12 @@ func (a *App) createMarksTab() *container.TabItem {
 	table.SetColumnWidth(3, 100)
 	table.SetColumnWidth(4, 200)
 
-	var topPanel fyne.CanvasObject
-	topPanel = nil
+	avgBtn := widget.NewButton("Среднее", func() {
+		showAvgDialog(a)
+	})
+	adminPanel := layout.NewSpacer()
 	if a.user.IsAdmin {
-		topPanel = addAdminTools(
+		adminPanel = addAdminTools(
 			showMarkEditForm,
 			showMarkNewForm,
 			deleteMark,
@@ -287,6 +289,7 @@ func (a *App) createMarksTab() *container.TabItem {
 		)
 	}
 
+	topPanel := container.New(layout.NewHBoxLayout(), avgBtn, adminPanel)
 	return container.NewTabItem("Оценки", container.NewBorder(topPanel, nil, nil, nil, table))
 }
 

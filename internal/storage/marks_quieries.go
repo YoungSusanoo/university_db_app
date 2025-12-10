@@ -103,3 +103,9 @@ func (s *Storage) DeleteMark(mark models.Mark) error {
 	_, err := s.pool.Exec(context.Background(), query, mark.Id)
 	return err
 }
+
+func (s *Storage) GetAvgGroupRange(start, end int, name string) (avg float32, err error) {
+	query := `SELECT avg FROM get_groups_avg_year_range($1, $2, $3)`
+	err = s.pool.QueryRow(context.Background(), query, start, end, name).Scan(&avg)
+	return
+}
