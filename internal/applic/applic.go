@@ -28,6 +28,7 @@ const (
 	groupTabIndex   = 2
 	subjectTabIndex = 3
 	markTabIndex    = 4
+	statsTabIndex   = 5
 )
 
 func NewApp() *App {
@@ -68,6 +69,7 @@ func (a *App) showMainScreen() *container.AppTabs {
 		a.createGroupsTab(),
 		a.createSubjectsTab(),
 		a.createMarksTab(),
+		a.createStatsTab(),
 	)
 	return a.tabs
 }
@@ -97,4 +99,5 @@ func (a *App) refreshTabs() {
 	a.tabs.Items[studentTabIndex] = a.createStudentsTab()
 	a.tabs.Items[subjectTabIndex] = a.createSubjectsTab()
 	a.tabs.Items[teacherTabIndex] = a.createTeachersTab()
+	a.tabs.Items[statsTabIndex] = a.createStatsTab()
 }

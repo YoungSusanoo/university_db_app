@@ -1,16 +1,11 @@
 package applic
 
 import (
-	"fmt"
 	"strconv"
 	"strings"
 	"university_app/internal/models"
 
-	"fyne.io/fyne/v2"
-	"fyne.io/fyne/v2/container"
-	"fyne.io/fyne/v2/data/binding"
 	"fyne.io/fyne/v2/dialog"
-	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
 )
 
@@ -77,74 +72,6 @@ func getNewMark(a *App, mark *models.Mark, callback func()) {
 		},
 		a.window,
 	)
-}
-
-func showAvgDialog(a *App) {
-	avgBind := binding.NewString()
-
-	startEntry := widget.NewEntry()
-	endEntry := widget.NewEntry()
-	avgEntry := widget.NewLabelWithData(avgBind)
-	avgEntry.TextStyle.Monospace = true
-
-	var valueToFind string
-	filterValue := widget.NewSelect([]string{}, func(s string) {
-		valueToFind = s
-	})
-	options := []string{"Группа", "Студент", "Преподаватель"}
-	filterType := widget.NewSelect(options, func(s string) {
-		switch s {
-		case "Группа":
-			filterValue.Options, _ = a.db.GetGroupsNoYearSlice()
-		case "Преподаватель":
-			teachers, err := a.db.GetTeachers()
-			if err != nil {
-				a.showError(err)
-			}
-			filterValue.Options = models.TeachersToStrings(teachers)
-		case "Студент":
-			students, err := a.db.GetStudents()
-			if err != nil {
-				a.showError(err)
-			}
-			filterValue.Options = models.StudentsToStrings(students)
-		}
-	})
-
-	btn := widget.NewButton("Рассчитать", func() {
-		startInt, err := strconv.Atoi(startEntry.Text)
-		if err != nil {
-			a.showError(err)
-		}
-		endInt, err := strconv.Atoi(endEntry.Text)
-		if err != nil {
-			a.showError(err)
-		}
-
-		const (
-			groupSelectedPos = 0
-		)
-		switch filterType.SelectedIndex() {
-		case groupSelectedPos:
-			avgNum, err := a.db.GetAvgGroupRange(startInt, endInt, valueToFind)
-			if err != nil {
-				a.showError(err)
-				return
-			}
-			avgBind.Set(fmt.Sprintf("%f", avgNum))
-		}
-	})
-
-	gridColumn1 := container.NewVBox(widget.NewLabel("Начало"), widget.NewLabel("Конец"), widget.NewLabel("Среднее"))
-	gridColumn2 := container.NewVBox(startEntry, endEntry, avgEntry)
-	content := container.NewVBox(
-		widget.NewLabelWithStyle("Рассчитать средний", fyne.TextAlignCenter, fyne.TextStyle{Bold: true}),
-		container.New(layout.NewGridLayout(2), gridColumn1, gridColumn2),
-		container.NewHBox(filterType, filterValue),
-		btn,
-	)
-
-	dialog.ShowCustom("Выберите действие", "Закрыть", content, a.window)
 }
 
 func showMarkNewForm(a *App) {
