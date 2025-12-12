@@ -99,10 +99,17 @@ func createCountTableButton(a *App, start, end *widget.Entry, filter, fType *wid
 			return
 		}
 
-		if len(content.Objects) > 0 {
-			content.Objects[0] = createYearAvgTable(yearAvg)
+		var findResult fyne.CanvasObject
+		if len(yearAvg) != 0 {
+			findResult = createYearAvgTable(yearAvg)
 		} else {
-			content.Objects = append(content.Objects, createYearAvgTable(yearAvg))
+			findResult = widget.NewLabel("Ничего не найдено")
+		}
+
+		if len(content.Objects) > 0 {
+			content.Objects[0] = findResult
+		} else {
+			content.Objects = append(content.Objects, findResult)
 		}
 	})
 	return btn
