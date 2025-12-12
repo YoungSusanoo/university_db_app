@@ -40,7 +40,7 @@ func getNewMark(a *App, mark *models.Mark, callback func()) {
 
 	value := widget.NewEntry()
 	dialog.ShowForm(
-		"Новый преподаватель",
+		"Новая оценка",
 		"Сохранить",
 		"Отмена",
 		[]*widget.FormItem{

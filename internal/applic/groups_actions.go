@@ -20,7 +20,7 @@ func deleteGroup(a *App, group models.Group, actionsDialog *dialog.CustomDialog)
 func getNewGroup(a *App, group *models.Group, callback func()) {
 	name := widget.NewEntry()
 	dialog.ShowForm(
-		"Новый предмет",
+		"Новая группа",
 		"Сохранить",
 		"Отмена",
 		[]*widget.FormItem{

@@ -28,7 +28,7 @@ func getNewStudent(a *App, student *models.Student, callback func()) {
 	}
 	group := widget.NewSelectEntry(models.GroupsToStrings(groups))
 	dialog.ShowForm(
-		"Новый преподаватель",
+		"Новый студент",
 		"Сохранить",
 		"Отмена",
 		[]*widget.FormItem{
