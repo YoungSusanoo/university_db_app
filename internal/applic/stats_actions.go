@@ -1,6 +1,7 @@
 package applic
 
 import (
+	"encoding/csv"
 	"fmt"
 	"strconv"
 	"strings"
@@ -8,6 +9,7 @@ import (
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
 )
@@ -57,43 +59,19 @@ func createStatsUtilPanel(a *App) *fyne.Container {
 		container.NewHBox(filterType, filterValue),
 	)
 	content := container.NewAdaptiveGrid(1)
-	topPanel.Add(createCountTableButton(a, startEntry, endEntry, filterValue, filterType, content))
-	return container.NewBorder(topPanel, nil, nil, nil, content)
+	buttonsBox := container.NewHBox(
+		createCountTableButton(a, startEntry, endEntry, filterValue, filterType, content),
+		createExportButton(a, startEntry, endEntry, filterValue, filterType),
+		layout.NewSpacer(),
+	)
+	topPanel.Add(buttonsBox)
+	return container.NewBorder(container.NewHBox(topPanel, layout.NewSpacer()), nil, nil, nil, content)
 }
 
 func createCountTableButton(a *App, start, end *widget.Entry, filter, fType *widget.Select, content *fyne.Container) *widget.Button {
 	btn := widget.NewButton("Рассчитать таблицу", func() {
-		startInt, err := strconv.Atoi(start.Text)
-		if err != nil {
-			a.showError(fmt.Errorf("invalid start year"))
-			return
-		}
-		endInt, err := strconv.Atoi(end.Text)
-		if err != nil {
-			a.showError(fmt.Errorf("invalid end year"))
-			return
-		}
 
-		if fType.Selected == "" {
-			a.showError(fmt.Errorf("no selected filter type"))
-			return
-		}
-		if filter.Selected == "" {
-			a.showError(fmt.Errorf("no selected filter"))
-			return
-		}
-
-		var yearAvg []models.YearAverage
-		switch fType.SelectedIndex() {
-		case groupSelectedPos:
-			yearAvg, err = a.db.GetAvgGroupRange(startInt, endInt, filter.Selected)
-		case studentSelectedPos:
-			student := studentFromStrings(strings.Split(filter.Selected, " "))
-			yearAvg, err = a.db.GetAvgStudentRange(startInt, endInt, student)
-		case teacherSelectedPos:
-			teacher := teacherFromStrings(strings.Split(filter.Selected, " "))
-			yearAvg, err = a.db.GetAvgTeacherRange(startInt, endInt, teacher)
-		}
+		yearAvg, err := validateParamsAndGetAvg(a, start, end, filter, fType)
 		if err != nil {
 			a.showError(err)
 			return
@@ -113,6 +91,71 @@ func createCountTableButton(a *App, start, end *widget.Entry, filter, fType *wid
 		}
 	})
 	return btn
+}
+
+func createExportButton(a *App, start, end *widget.Entry, filter, fType *widget.Select) *widget.Button {
+	return widget.NewButton("Экспорт csv", func() {
+		yearAvg, err := validateParamsAndGetAvg(a, start, end, filter, fType)
+		if err != nil {
+			a.showError(err)
+			return
+		}
+
+		dialog.ShowFileSave(
+			func(writer fyne.URIWriteCloser, err error) {
+				if err != nil {
+					a.showError(err)
+					return
+				}
+				if writer == nil {
+					return
+				}
+				exporter := csv.NewWriter(writer)
+				defer writer.Close()
+				exporter.Write([]string{filter.Selected})
+				exporter.Write([]string{"Год", "Среднее"})
+				for _, avg := range yearAvg {
+					exporter.Write([]string{strconv.FormatInt(avg.Year, 10), fmt.Sprintf("%f", avg.Avg)})
+				}
+				exporter.Flush()
+			},
+			a.window,
+		)
+	})
+}
+
+func validateParamsAndGetAvg(a *App, start, end *widget.Entry, filter, fType *widget.Select) ([]models.YearAverage, error) {
+	startInt, err := strconv.Atoi(start.Text)
+	if err != nil {
+		return nil, fmt.Errorf("invalid start year")
+	}
+	endInt, err := strconv.Atoi(end.Text)
+	if err != nil {
+		return nil, fmt.Errorf("invalid end year")
+	}
+
+	if fType.Selected == "" {
+		return nil, fmt.Errorf("no selected filter type")
+	}
+	if filter.Selected == "" {
+		return nil, fmt.Errorf("no selected filter")
+	}
+
+	var yearAvg []models.YearAverage
+	switch fType.SelectedIndex() {
+	case groupSelectedPos:
+		yearAvg, err = a.db.GetAvgGroupRange(startInt, endInt, filter.Selected)
+	case studentSelectedPos:
+		student := studentFromStrings(strings.Split(filter.Selected, " "))
+		yearAvg, err = a.db.GetAvgStudentRange(startInt, endInt, student)
+	case teacherSelectedPos:
+		teacher := teacherFromStrings(strings.Split(filter.Selected, " "))
+		yearAvg, err = a.db.GetAvgTeacherRange(startInt, endInt, teacher)
+	}
+	if err != nil {
+		return nil, err
+	}
+	return yearAvg, nil
 }
 
 func createYearAvgTable(yearAvg []models.YearAverage) *widget.Table {
