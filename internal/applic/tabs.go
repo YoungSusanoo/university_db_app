@@ -1,13 +1,10 @@
 package applic
 
 import (
-	"fmt"
-	"strconv"
 	"university_app/internal/models"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
-	"fyne.io/fyne/v2/data/binding"
 	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
@@ -28,41 +25,7 @@ func (a *App) createStudentsTab() *container.TabItem {
 		return container.NewTabItem("Студенты", widget.NewLabel("Не удалось загрузить данные"))
 	}
 
-	table := widget.NewTable(
-		func() (int, int) {
-			return len(students) + 1, studentCols
-		},
-		func() fyne.CanvasObject {
-			return widget.NewLabel("template")
-		},
-		func(tci widget.TableCellID, co fyne.CanvasObject) {
-			label := co.(*widget.Label)
-			if tci.Row == 0 {
-				headers := []string{"Id", "Имя", "Фамилия", "Отчество", "Группа"}
-				label.SetText(headers[tci.Col])
-				label.TextStyle.Bold = true
-			} else {
-				stud := students[tci.Row-1]
-				switch tci.Col {
-				case 0:
-					label.SetText(strconv.FormatInt(stud.Id, 10))
-				case 1:
-					label.SetText(stud.FirstName)
-				case 2:
-					label.SetText(stud.LastName)
-				case 3:
-					label.SetText(stud.FatherName)
-				case 4:
-					label.SetText(stud.Group)
-				}
-			}
-		},
-	)
-
-	table.SetColumnWidth(0, 50)
-	table.SetColumnWidth(1, 100)
-	table.SetColumnWidth(2, 100)
-	table.SetColumnWidth(3, 100)
+	table := createStudentsTable(students)
 
 	var topPanel fyne.CanvasObject
 	topPanel = nil
@@ -85,34 +48,7 @@ func (a *App) createTeachersTab() *container.TabItem {
 		return container.NewTabItem("Преподаватели", widget.NewLabel("Не удалось загрузить данные"))
 	}
 
-	table := widget.NewTable(
-		func() (int, int) {
-			return len(teachers) + 1, teacherCols
-		},
-		func() fyne.CanvasObject {
-			return widget.NewLabel("template")
-		},
-		func(tci widget.TableCellID, co fyne.CanvasObject) {
-			label := co.(*widget.Label)
-			if tci.Row == 0 {
-				headers := []string{"Id", "Имя", "Фамилия", "Отчество"}
-				label.SetText(headers[tci.Col])
-				label.TextStyle.Bold = true
-			} else {
-				teach := teachers[tci.Row-1]
-				switch tci.Col {
-				case 0:
-					label.SetText(strconv.FormatInt(teach.Id, 10))
-				case 1:
-					label.SetText(teach.FirstName)
-				case 2:
-					label.SetText(teach.LastName)
-				case 3:
-					label.SetText(teach.FatherName)
-				}
-			}
-		},
-	)
+	table := createTeachersTable(teachers)
 
 	var topPanel fyne.CanvasObject
 	topPanel = nil
@@ -135,30 +71,7 @@ func (a *App) createGroupsTab() *container.TabItem {
 		return container.NewTabItem("Группы", widget.NewLabel("Не удалось загрузить данные"))
 	}
 
-	table := widget.NewTable(
-		func() (int, int) {
-			return len(groups) + 1, groupsCols
-		},
-		func() fyne.CanvasObject {
-			return widget.NewLabel("template")
-		},
-		func(tci widget.TableCellID, co fyne.CanvasObject) {
-			label := co.(*widget.Label)
-			if tci.Row == 0 {
-				headers := []string{"Id", "Имя"}
-				label.SetText(headers[tci.Col])
-				label.TextStyle.Bold = true
-			} else {
-				group := groups[tci.Row-1]
-				switch tci.Col {
-				case 0:
-					label.SetText(strconv.FormatInt(group.Id, 10))
-				case 1:
-					label.SetText(group.Name)
-				}
-			}
-		},
-	)
+	table := createGroupsTable(groups)
 
 	var topPanel fyne.CanvasObject
 	topPanel = nil
@@ -182,30 +95,7 @@ func (a *App) createSubjectsTab() *container.TabItem {
 		return container.NewTabItem("Предметы", widget.NewLabel("Не удалось загрузить данные"))
 	}
 
-	table := widget.NewTable(
-		func() (int, int) {
-			return len(subjects) + 1, subjectCols
-		},
-		func() fyne.CanvasObject {
-			return widget.NewLabel("template")
-		},
-		func(tci widget.TableCellID, co fyne.CanvasObject) {
-			label := co.(*widget.Label)
-			if tci.Row == 0 {
-				headers := []string{"Id", "Имя"}
-				label.SetText(headers[tci.Col])
-				label.TextStyle.Bold = true
-			} else {
-				subj := subjects[tci.Row-1]
-				switch tci.Col {
-				case 0:
-					label.SetText(strconv.FormatInt(subj.Id, 10))
-				case 1:
-					label.SetText(subj.Name)
-				}
-			}
-		},
-	)
+	table := createSubjectsTable(subjects)
 
 	var topPanel fyne.CanvasObject
 	topPanel = nil
@@ -230,51 +120,7 @@ func (a *App) createMarksTab() *container.TabItem {
 		return container.NewTabItem("Оценки", widget.NewLabel("Не удалось загрузить данные"))
 	}
 
-	table := widget.NewTable(
-		func() (int, int) {
-			return len(marks) + 1, marksCols
-		},
-		func() fyne.CanvasObject {
-			return container.NewGridWithColumns(3, widget.NewLabel("t"), widget.NewLabel("t"), widget.NewLabel("t"))
-		},
-		func(tci widget.TableCellID, co fyne.CanvasObject) {
-			cell := co.(*fyne.Container)
-			if tci.Row == 0 {
-				cell.RemoveAll()
-				headers := []string{"Id", "Преподаватель", "Студент", "Группа", "Предмет", "Оценка"}
-				cell.Add(widget.NewLabel(headers[tci.Col]))
-			} else {
-				switch tci.Col {
-				case 0:
-					cell.RemoveAll()
-					cell.Add(widget.NewLabel(strconv.FormatInt(marks[tci.Row-1].Id, 10)))
-				case 1:
-					cell.Objects[0].(*widget.Label).SetText(marks[tci.Row-1].Teach.FirstName)
-					cell.Objects[1].(*widget.Label).SetText(marks[tci.Row-1].Teach.LastName)
-					cell.Objects[2].(*widget.Label).SetText(marks[tci.Row-1].Teach.FatherName)
-				case 2:
-					cell.Objects[0].(*widget.Label).SetText(marks[tci.Row-1].Stud.FirstName)
-					cell.Objects[1].(*widget.Label).SetText(marks[tci.Row-1].Stud.LastName)
-					cell.Objects[2].(*widget.Label).SetText(marks[tci.Row-1].Stud.FatherName)
-				case 3:
-					cell.RemoveAll()
-					cell.Add(widget.NewLabel(marks[tci.Row-1].Stud.Group))
-				case 4:
-					cell.RemoveAll()
-					cell.Add(widget.NewLabel(marks[tci.Row-1].Subj.Name))
-				case 5:
-					cell.RemoveAll()
-					cell.Add(widget.NewLabel(strconv.FormatInt(int64(marks[tci.Row-1].Value), 10)))
-				}
-			}
-		},
-	)
-
-	table.SetColumnWidth(0, 50)
-	table.SetColumnWidth(1, 400)
-	table.SetColumnWidth(2, 400)
-	table.SetColumnWidth(3, 100)
-	table.SetColumnWidth(4, 200)
+	table := createMarksTable(marks)
 
 	var topPanel fyne.CanvasObject
 	if a.user.IsAdmin {
@@ -292,71 +138,7 @@ func (a *App) createMarksTab() *container.TabItem {
 }
 
 func (a *App) createStatsTab() *container.TabItem {
-	avgBind := binding.NewString()
-
-	startEntry := widget.NewEntry()
-	endEntry := widget.NewEntry()
-	avgEntry := widget.NewLabelWithData(avgBind)
-	avgEntry.TextStyle.Monospace = true
-
-	var valueToFind string
-	filterValue := widget.NewSelect([]string{}, func(s string) {
-		valueToFind = s
-	})
-	options := []string{"Группа", "Студент", "Преподаватель"}
-	filterType := widget.NewSelect(options, func(s string) {
-		switch s {
-		case "Группа":
-			filterValue.Options, _ = a.db.GetGroupsNoYearSlice()
-		case "Преподаватель":
-			teachers, err := a.db.GetTeachers()
-			if err != nil {
-				a.showError(err)
-			}
-			filterValue.Options = models.TeachersToStrings(teachers)
-		case "Студент":
-			students, err := a.db.GetStudents()
-			if err != nil {
-				a.showError(err)
-			}
-			filterValue.Options = models.StudentsToStrings(students)
-		}
-	})
-
-	btn := widget.NewButton("Рассчитать", func() {
-		startInt, err := strconv.Atoi(startEntry.Text)
-		if err != nil {
-			a.showError(err)
-		}
-		endInt, err := strconv.Atoi(endEntry.Text)
-		if err != nil {
-			a.showError(err)
-		}
-
-		const (
-			groupSelectedPos = 0
-		)
-		switch filterType.SelectedIndex() {
-		case groupSelectedPos:
-			avgNum, err := a.db.GetAvgGroupRange(startInt, endInt, valueToFind)
-			if err != nil {
-				a.showError(err)
-				return
-			}
-			avgBind.Set(fmt.Sprintf("%f", avgNum))
-		}
-	})
-
-	gridColumn1 := container.NewVBox(widget.NewLabel("Начало"), widget.NewLabel("Конец"), widget.NewLabel("Среднее"))
-	gridColumn2 := container.NewVBox(startEntry, endEntry, avgEntry)
-	content := container.NewVBox(
-		widget.NewLabelWithStyle("Рассчитать средний", fyne.TextAlignCenter, fyne.TextStyle{Bold: true}),
-		container.New(layout.NewGridLayout(2), gridColumn1, gridColumn2),
-		container.NewHBox(filterType, filterValue),
-		btn,
-	)
-
-	return container.NewTabItem("Статистика", content)
+	return container.NewTabItem("Статистика", createStatsUtilPanel(a))
 }
 
 func addAdminTools[T models.Model](

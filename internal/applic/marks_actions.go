@@ -5,6 +5,8 @@ import (
 	"strings"
 	"university_app/internal/models"
 
+	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/widget"
 )
@@ -126,4 +128,53 @@ func studentFromStrings(strs []string) (s models.Student) {
 		s.FatherName = strings.Join(strs[2:len(strs)-1], " ")
 	}
 	return
+}
+
+func createMarksTable(marks []models.Mark) *widget.Table {
+	table := widget.NewTable(
+		func() (int, int) {
+			return len(marks) + 1, marksCols
+		},
+		func() fyne.CanvasObject {
+			return container.NewGridWithColumns(3, widget.NewLabel("t"), widget.NewLabel("t"), widget.NewLabel("t"))
+		},
+		func(tci widget.TableCellID, co fyne.CanvasObject) {
+			cell := co.(*fyne.Container)
+			if tci.Row == 0 {
+				cell.RemoveAll()
+				headers := []string{"Id", "Преподаватель", "Студент", "Группа", "Предмет", "Оценка"}
+				cell.Add(widget.NewLabel(headers[tci.Col]))
+			} else {
+				switch tci.Col {
+				case 0:
+					cell.RemoveAll()
+					cell.Add(widget.NewLabel(strconv.FormatInt(marks[tci.Row-1].Id, 10)))
+				case 1:
+					cell.Objects[0].(*widget.Label).SetText(marks[tci.Row-1].Teach.FirstName)
+					cell.Objects[1].(*widget.Label).SetText(marks[tci.Row-1].Teach.LastName)
+					cell.Objects[2].(*widget.Label).SetText(marks[tci.Row-1].Teach.FatherName)
+				case 2:
+					cell.Objects[0].(*widget.Label).SetText(marks[tci.Row-1].Stud.FirstName)
+					cell.Objects[1].(*widget.Label).SetText(marks[tci.Row-1].Stud.LastName)
+					cell.Objects[2].(*widget.Label).SetText(marks[tci.Row-1].Stud.FatherName)
+				case 3:
+					cell.RemoveAll()
+					cell.Add(widget.NewLabel(marks[tci.Row-1].Stud.Group))
+				case 4:
+					cell.RemoveAll()
+					cell.Add(widget.NewLabel(marks[tci.Row-1].Subj.Name))
+				case 5:
+					cell.RemoveAll()
+					cell.Add(widget.NewLabel(strconv.FormatInt(int64(marks[tci.Row-1].Value), 10)))
+				}
+			}
+		},
+	)
+
+	table.SetColumnWidth(0, 50)
+	table.SetColumnWidth(1, 400)
+	table.SetColumnWidth(2, 400)
+	table.SetColumnWidth(3, 100)
+	table.SetColumnWidth(4, 200)
+	return table
 }

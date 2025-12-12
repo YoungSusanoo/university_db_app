@@ -1,8 +1,10 @@
 package applic
 
 import (
+	"strconv"
 	"university_app/internal/models"
 
+	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/widget"
 )
@@ -59,4 +61,32 @@ func showGroupEditForm(a *App, group models.Group, actionsDialog *dialog.CustomD
 			actionsDialog.Dismiss()
 		}
 	})
+}
+
+func createGroupsTable(groups []models.Group) *widget.Table {
+	table := widget.NewTable(
+		func() (int, int) {
+			return len(groups) + 1, groupsCols
+		},
+		func() fyne.CanvasObject {
+			return widget.NewLabel("template")
+		},
+		func(tci widget.TableCellID, co fyne.CanvasObject) {
+			label := co.(*widget.Label)
+			if tci.Row == 0 {
+				headers := []string{"Id", "Имя"}
+				label.SetText(headers[tci.Col])
+				label.TextStyle.Bold = true
+			} else {
+				group := groups[tci.Row-1]
+				switch tci.Col {
+				case 0:
+					label.SetText(strconv.FormatInt(group.Id, 10))
+				case 1:
+					label.SetText(group.Name)
+				}
+			}
+		},
+	)
+	return table
 }

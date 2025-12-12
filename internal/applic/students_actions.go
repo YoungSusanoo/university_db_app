@@ -1,8 +1,10 @@
 package applic
 
 import (
+	"strconv"
 	"university_app/internal/models"
 
+	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/widget"
 )
@@ -70,4 +72,43 @@ func showStudentEditForm(a *App, student models.Student, actionsDialog *dialog.C
 			actionsDialog.Dismiss()
 		}
 	})
+}
+
+func createStudentsTable(students []models.Student) *widget.Table {
+	table := widget.NewTable(
+		func() (int, int) {
+			return len(students) + 1, studentCols
+		},
+		func() fyne.CanvasObject {
+			return widget.NewLabel("template")
+		},
+		func(tci widget.TableCellID, co fyne.CanvasObject) {
+			label := co.(*widget.Label)
+			if tci.Row == 0 {
+				headers := []string{"Id", "Имя", "Фамилия", "Отчество", "Группа"}
+				label.SetText(headers[tci.Col])
+				label.TextStyle.Bold = true
+			} else {
+				stud := students[tci.Row-1]
+				switch tci.Col {
+				case 0:
+					label.SetText(strconv.FormatInt(stud.Id, 10))
+				case 1:
+					label.SetText(stud.FirstName)
+				case 2:
+					label.SetText(stud.LastName)
+				case 3:
+					label.SetText(stud.FatherName)
+				case 4:
+					label.SetText(stud.Group)
+				}
+			}
+		},
+	)
+
+	table.SetColumnWidth(0, 50)
+	table.SetColumnWidth(1, 100)
+	table.SetColumnWidth(2, 100)
+	table.SetColumnWidth(3, 100)
+	return table
 }
