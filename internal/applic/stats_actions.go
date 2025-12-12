@@ -3,6 +3,7 @@ package applic
 import (
 	"fmt"
 	"strconv"
+	"strings"
 	"university_app/internal/models"
 
 	"fyne.io/fyne/v2"
@@ -12,8 +13,10 @@ import (
 )
 
 const (
-	yearAvgCols      = 2
-	groupSelectedPos = 0
+	yearAvgCols        = 2
+	groupSelectedPos   = 0
+	studentSelectedPos = 1
+	teacherSelectedPos = 2
 )
 
 func createStatsUtilPanel(a *App) *fyne.Container {
@@ -25,7 +28,11 @@ func createStatsUtilPanel(a *App) *fyne.Container {
 	filterType := widget.NewSelect(options, func(s string) {
 		switch s {
 		case "Группа":
-			filterValue.Options, _ = a.db.GetGroupsNoYearSlice()
+			groups, err := a.db.GetGroupsNoYear()
+			if err != nil {
+				a.showError(err)
+			}
+			filterValue.Options = models.GroupsNoYearToStrings(groups)
 		case "Преподаватель":
 			teachers, err := a.db.GetTeachers()
 			if err != nil {
@@ -33,11 +40,11 @@ func createStatsUtilPanel(a *App) *fyne.Container {
 			}
 			filterValue.Options = models.TeachersToStrings(teachers)
 		case "Студент":
-			students, err := a.db.GetStudents()
+			students, err := a.db.GetStudentsNoYearGroup()
 			if err != nil {
 				a.showError(err)
 			}
-			filterValue.Options = models.StudentsToStrings(students)
+			filterValue.Options = models.StudentsNoYearGroupsToString(students)
 		}
 	})
 
@@ -49,11 +56,11 @@ func createStatsUtilPanel(a *App) *fyne.Container {
 		container.NewHBox(filterType, filterValue),
 	)
 	content := container.NewAdaptiveGrid(1)
-	topPanel.Add(createCountTableButton(a, startEntry, endEntry, filterValue, content))
+	topPanel.Add(createCountTableButton(a, startEntry, endEntry, filterValue, filterType, content))
 	return container.NewBorder(topPanel, nil, nil, nil, content)
 }
 
-func createCountTableButton(a *App, start, end *widget.Entry, filter *widget.Select, content *fyne.Container) *widget.Button {
+func createCountTableButton(a *App, start, end *widget.Entry, filter, fType *widget.Select, content *fyne.Container) *widget.Button {
 	btn := widget.NewButton("Рассчитать таблицу", func() {
 		startInt, err := strconv.Atoi(start.Text)
 		if err != nil {
@@ -64,7 +71,16 @@ func createCountTableButton(a *App, start, end *widget.Entry, filter *widget.Sel
 			a.showError(err)
 		}
 
-		yearAvg, err := a.db.GetAvgGroupRange(startInt, endInt, filter.Selected)
+		var yearAvg []models.YearAverage
+		switch fType.SelectedIndex() {
+		case groupSelectedPos:
+			yearAvg, err = a.db.GetAvgGroupRange(startInt, endInt, filter.Selected)
+		case studentSelectedPos:
+			student := studentNoYearGroupFromStrings(strings.Split(filter.Selected, " "))
+			yearAvg, err = a.db.GetAvgStudentRange(startInt, endInt, student)
+		case teacherSelectedPos:
+			yearAvg, err = a.db.GetAvgGroupRange(startInt, endInt, filter.Selected)
+		}
 		if err != nil {
 			a.showError(err)
 			return

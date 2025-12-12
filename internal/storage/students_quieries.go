@@ -49,3 +49,13 @@ func (s *Storage) DeleteStudent(student models.Student) error {
 	_, err := s.pool.Exec(context.Background(), query, student.Id)
 	return err
 }
+
+func (s *Storage) GetStudentsNoYearGroup() ([]models.StudentNoYearGroup, error) {
+	query := `SELECT * FROM students_with_group_no_year`
+	rows, err := s.pool.Query(context.Background(), query)
+	if err != nil {
+		return nil, err
+	}
+
+	return pgx.CollectRows(rows, pgx.RowToStructByPos[models.StudentNoYearGroup])
+}

@@ -130,6 +130,21 @@ func studentFromStrings(strs []string) (s models.Student) {
 	return
 }
 
+func studentNoYearGroupFromStrings(strs []string) (s models.StudentNoYearGroup) {
+	s = models.StudentNoYearGroup{}
+	if len(strs) > 1 {
+		s.FirstName = strs[0]
+		s.Group = strs[len(strs)-1]
+	}
+	if len(strs) > 2 {
+		s.LastName = strs[1]
+	}
+	if len(strs) > 3 {
+		s.FatherName = strings.Join(strs[2:len(strs)-1], " ")
+	}
+	return
+}
+
 func createMarksTable(marks []models.Mark) *widget.Table {
 	table := widget.NewTable(
 		func() (int, int) {

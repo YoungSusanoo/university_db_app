@@ -17,6 +17,13 @@ type Student struct {
 	Group      string
 }
 
+type StudentNoYearGroup struct {
+	FirstName  string
+	LastName   string
+	FatherName string
+	Group      string
+}
+
 type Teacher struct {
 	Id         int64
 	FirstName  string
@@ -39,6 +46,9 @@ type Mark struct {
 
 type Group struct {
 	Id   int64
+	Name string
+}
+type GroupNoYear struct {
 	Name string
 }
 

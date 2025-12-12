@@ -119,3 +119,28 @@ func (s *Storage) GetAvgGroupRange(start, end int, name string) (avgs []models.Y
 	})
 	return
 }
+
+func (s *Storage) GetAvgStudentRange(start, end int, student models.StudentNoYearGroup) (avgs []models.YearAverage, err error) {
+	query := `SELECT * FROM get_students_avg_year_range($1, $2, $3, $4, $5, $6)`
+	rows, err := s.pool.Query(
+		context.Background(),
+		query,
+		start,
+		end,
+		student.FirstName,
+		student.LastName,
+		student.FatherName,
+		student.Group,
+	)
+	if err != nil {
+		return nil, err
+	}
+	avgs = make([]models.YearAverage, 0)
+	var year int64
+	var avg float32
+	pgx.ForEachRow(rows, []any{&year, &avg}, func() error {
+		avgs = append(avgs, models.YearAverage{year, avg})
+		return nil
+	})
+	return
+}
