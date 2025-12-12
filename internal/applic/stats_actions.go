@@ -46,6 +46,7 @@ func createStatsUtilPanel(a *App) *fyne.Container {
 			}
 			filterValue.Options = models.StudentsToStrings(students)
 		}
+		filterValue.ClearSelected()
 	})
 
 	gridColumn1 := container.NewVBox(widget.NewLabel("Начало"), widget.NewLabel("Конец"), widget.NewLabel("Среднее"))
@@ -64,11 +65,22 @@ func createCountTableButton(a *App, start, end *widget.Entry, filter, fType *wid
 	btn := widget.NewButton("Рассчитать таблицу", func() {
 		startInt, err := strconv.Atoi(start.Text)
 		if err != nil {
-			a.showError(err)
+			a.showError(fmt.Errorf("invalid start year"))
+			return
 		}
 		endInt, err := strconv.Atoi(end.Text)
 		if err != nil {
-			a.showError(err)
+			a.showError(fmt.Errorf("invalid end year"))
+			return
+		}
+
+		if fType.Selected == "" {
+			a.showError(fmt.Errorf("no selected filter type"))
+			return
+		}
+		if filter.Selected == "" {
+			a.showError(fmt.Errorf("no selected filter"))
+			return
 		}
 
 		var yearAvg []models.YearAverage
