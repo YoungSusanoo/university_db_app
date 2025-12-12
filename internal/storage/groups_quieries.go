@@ -44,12 +44,18 @@ func (s *Storage) DeleteGroup(group models.Group) error {
 	return err
 }
 
-func (s *Storage) GetGroupsNoYear() (grous []models.GroupNoYear, err error) {
+func (s *Storage) GetGroupsNoYear() ([]models.Group, error) {
 	query := `SELECT DISTINCT split_part(name, '_', 1) FROM groups`
 	rows, err := s.pool.Query(context.Background(), query)
 	if err != nil {
 		return nil, err
 	}
 
-	return pgx.CollectRows(rows, pgx.RowToStructByPos[models.GroupNoYear])
+	var name string
+	groups := make([]models.Group, 0)
+	pgx.ForEachRow(rows, []any{&name}, func() error {
+		groups = append(groups, models.Group{-1, name})
+		return nil
+	})
+	return groups, err
 }

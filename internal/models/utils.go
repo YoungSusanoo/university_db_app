@@ -10,14 +10,6 @@ func GroupsToStrings(groups []Group) (strs []string) {
 	return
 }
 
-func GroupsNoYearToStrings(groups []GroupNoYear) (strs []string) {
-	strs = make([]string, len(groups))
-	for i, group := range groups {
-		strs[i] = group.Name
-	}
-	return
-}
-
 func TeachersToStrings(teachers []Teacher) (strs []string) {
 	strs = make([]string, len(teachers))
 	for i, teach := range teachers {
@@ -27,14 +19,6 @@ func TeachersToStrings(teachers []Teacher) (strs []string) {
 }
 
 func StudentsToStrings(students []Student) (strs []string) {
-	strs = make([]string, len(students))
-	for i, stud := range students {
-		strs[i] = fmt.Sprintf("%s %s %s %s", stud.FirstName, stud.LastName, stud.FatherName, stud.Group)
-	}
-	return
-}
-
-func StudentsNoYearGroupsToString(students []StudentNoYearGroup) (strs []string) {
 	strs = make([]string, len(students))
 	for i, stud := range students {
 		strs[i] = fmt.Sprintf("%s %s %s %s", stud.FirstName, stud.LastName, stud.FatherName, stud.Group)

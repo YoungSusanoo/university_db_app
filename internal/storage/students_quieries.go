@@ -50,12 +50,17 @@ func (s *Storage) DeleteStudent(student models.Student) error {
 	return err
 }
 
-func (s *Storage) GetStudentsNoYearGroup() ([]models.StudentNoYearGroup, error) {
+func (s *Storage) GetStudentsNoYearGroup() ([]models.Student, error) {
 	query := `SELECT * FROM students_with_group_no_year`
 	rows, err := s.pool.Query(context.Background(), query)
 	if err != nil {
 		return nil, err
 	}
-
-	return pgx.CollectRows(rows, pgx.RowToStructByPos[models.StudentNoYearGroup])
+	var first, last, father, group string
+	students := make([]models.Student, 0)
+	pgx.ForEachRow(rows, []any{&first, &last, &father, &group}, func() error {
+		students = append(students, models.Student{-1, first, last, father, group})
+		return nil
+	})
+	return students, nil
 }

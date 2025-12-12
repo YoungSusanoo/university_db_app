@@ -32,7 +32,7 @@ func createStatsUtilPanel(a *App) *fyne.Container {
 			if err != nil {
 				a.showError(err)
 			}
-			filterValue.Options = models.GroupsNoYearToStrings(groups)
+			filterValue.Options = models.GroupsToStrings(groups)
 		case "Преподаватель":
 			teachers, err := a.db.GetTeachers()
 			if err != nil {
@@ -44,7 +44,7 @@ func createStatsUtilPanel(a *App) *fyne.Container {
 			if err != nil {
 				a.showError(err)
 			}
-			filterValue.Options = models.StudentsNoYearGroupsToString(students)
+			filterValue.Options = models.StudentsToStrings(students)
 		}
 	})
 
@@ -76,10 +76,11 @@ func createCountTableButton(a *App, start, end *widget.Entry, filter, fType *wid
 		case groupSelectedPos:
 			yearAvg, err = a.db.GetAvgGroupRange(startInt, endInt, filter.Selected)
 		case studentSelectedPos:
-			student := studentNoYearGroupFromStrings(strings.Split(filter.Selected, " "))
+			student := studentFromStrings(strings.Split(filter.Selected, " "))
 			yearAvg, err = a.db.GetAvgStudentRange(startInt, endInt, student)
 		case teacherSelectedPos:
-			yearAvg, err = a.db.GetAvgGroupRange(startInt, endInt, filter.Selected)
+			teacher := teacherFromStrings(strings.Split(filter.Selected, " "))
+			yearAvg, err = a.db.GetAvgTeacherRange(startInt, endInt, teacher)
 		}
 		if err != nil {
 			a.showError(err)
