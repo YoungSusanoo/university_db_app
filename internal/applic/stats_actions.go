@@ -7,6 +7,11 @@ import (
 	"strings"
 	"university_app/internal/models"
 
+	"gonum.org/v1/plot"
+	"gonum.org/v1/plot/plotter"
+	"gonum.org/v1/plot/plotutil"
+	"gonum.org/v1/plot/vg"
+
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/dialog"
@@ -61,7 +66,8 @@ func createStatsUtilPanel(a *App) *fyne.Container {
 	content := container.NewAdaptiveGrid(1)
 	buttonsBox := container.NewHBox(
 		createCountTableButton(a, startEntry, endEntry, filterValue, filterType, content),
-		createExportButton(a, startEntry, endEntry, filterValue, filterType),
+		createExportCsvButton(a, startEntry, endEntry, filterValue, filterType),
+		createExportPlotButton(a, startEntry, endEntry, filterValue, filterType),
 		layout.NewSpacer(),
 	)
 	topPanel.Add(buttonsBox)
@@ -93,7 +99,7 @@ func createCountTableButton(a *App, start, end *widget.Entry, filter, fType *wid
 	return btn
 }
 
-func createExportButton(a *App, start, end *widget.Entry, filter, fType *widget.Select) *widget.Button {
+func createExportCsvButton(a *App, start, end *widget.Entry, filter, fType *widget.Select) *widget.Button {
 	return widget.NewButton("Экспорт csv", func() {
 		yearAvg, err := validateParamsAndGetAvg(a, start, end, filter, fType)
 		if err != nil {
@@ -118,6 +124,51 @@ func createExportButton(a *App, start, end *widget.Entry, filter, fType *widget.
 					exporter.Write([]string{strconv.FormatInt(avg.Year, 10), fmt.Sprintf("%f", avg.Avg)})
 				}
 				exporter.Flush()
+			},
+			a.window,
+		)
+	})
+}
+
+func createExportPlotButton(a *App, start, end *widget.Entry, filter, fType *widget.Select) *widget.Button {
+	return widget.NewButton("Экспорт графика", func() {
+		yearAvg, err := validateParamsAndGetAvg(a, start, end, filter, fType)
+		if err != nil {
+			a.showError(err)
+			return
+		}
+
+		p := plot.New()
+
+		p.Title.Text = "Plotutil example"
+		p.X.Label.Text = "Года"
+		p.Y.Label.Text = "Средний балл"
+
+		points := make(plotter.XYs, len(yearAvg))
+		for i, avg := range yearAvg {
+			points[i].X = float64(avg.Year)
+			points[i].Y = float64(avg.Avg)
+		}
+		err = plotutil.AddLinePoints(p, filter.Selected, points)
+		if err != nil {
+			a.showError(err)
+			return
+		}
+
+		dialog.ShowFileSave(
+			func(writer fyne.URIWriteCloser, err error) {
+				if err != nil {
+					a.showError(err)
+					return
+				}
+				if writer == nil {
+					return
+				}
+				defer writer.Close()
+				if err := p.Save(20*vg.Centimeter, 20*vg.Centimeter, writer.URI().Path()); err != nil {
+					a.showError(err)
+					return
+				}
 			},
 			a.window,
 		)
