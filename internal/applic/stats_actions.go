@@ -1,6 +1,7 @@
 package applic
 
 import (
+	"fmt"
 	"strconv"
 	"university_app/internal/models"
 
@@ -11,6 +12,7 @@ import (
 )
 
 const (
+	yearAvgCols      = 2
 	groupSelectedPos = 0
 )
 
@@ -18,10 +20,7 @@ func createStatsUtilPanel(a *App) *fyne.Container {
 	startEntry := widget.NewEntry()
 	endEntry := widget.NewEntry()
 
-	var valueToFind string
-	filterValue := widget.NewSelect([]string{}, func(s string) {
-		valueToFind = s
-	})
+	filterValue := widget.NewSelect([]string{}, func(s string) {})
 	options := []string{"Группа", "Студент", "Преподаватель"}
 	filterType := widget.NewSelect(options, func(s string) {
 		switch s {
@@ -44,33 +43,66 @@ func createStatsUtilPanel(a *App) *fyne.Container {
 
 	gridColumn1 := container.NewVBox(widget.NewLabel("Начало"), widget.NewLabel("Конец"), widget.NewLabel("Среднее"))
 	gridColumn2 := container.NewVBox(startEntry, endEntry)
-	content := container.NewVBox(
-		widget.NewLabelWithStyle("Рассчитать средний", fyne.TextAlignCenter, fyne.TextStyle{Bold: true}),
+	topPanel := container.NewVBox(
+		widget.NewLabelWithStyle("Показать статистику", fyne.TextAlignCenter, fyne.TextStyle{Bold: true}),
 		container.New(layout.NewGridLayout(2), gridColumn1, gridColumn2),
 		container.NewHBox(filterType, filterValue),
-		btn,
 	)
-	return content
+	content := container.NewAdaptiveGrid(1)
+	topPanel.Add(createCountTableButton(a, startEntry, endEntry, filterValue, content))
+	return container.NewBorder(topPanel, nil, nil, nil, content)
 }
 
-func createCountTableButton(a *App) {
+func createCountTableButton(a *App, start, end *widget.Entry, filter *widget.Select, content *fyne.Container) *widget.Button {
 	btn := widget.NewButton("Рассчитать таблицу", func() {
-		startInt, err := strconv.Atoi(startEntry.Text)
+		startInt, err := strconv.Atoi(start.Text)
 		if err != nil {
 			a.showError(err)
 		}
-		endInt, err := strconv.Atoi(endEntry.Text)
+		endInt, err := strconv.Atoi(end.Text)
 		if err != nil {
 			a.showError(err)
 		}
 
-		switch filterType.SelectedIndex() {
-		case groupSelectedPos:
-			avgNum, err := a.db.GetAvgGroupRange(startInt, endInt, valueToFind)
-			if err != nil {
-				a.showError(err)
-				return
-			}
+		yearAvg, err := a.db.GetAvgGroupRange(startInt, endInt, filter.Selected)
+		if err != nil {
+			a.showError(err)
+			return
+		}
+
+		if len(content.Objects) > 0 {
+			content.Objects[0] = createYearAvgTable(yearAvg)
+		} else {
+			content.Objects = append(content.Objects, createYearAvgTable(yearAvg))
 		}
 	})
+	return btn
+}
+
+func createYearAvgTable(yearAvg []models.YearAverage) *widget.Table {
+	table := widget.NewTable(
+		func() (int, int) {
+			return len(yearAvg) + 1, yearAvgCols
+		},
+		func() fyne.CanvasObject {
+			return widget.NewLabel("template")
+		},
+		func(tci widget.TableCellID, co fyne.CanvasObject) {
+			label := co.(*widget.Label)
+			if tci.Row == 0 {
+				headers := []string{"Год", "Среднее"}
+				label.SetText(headers[tci.Col])
+				label.TextStyle.Bold = true
+			} else {
+				curr := yearAvg[tci.Row-1]
+				switch tci.Col {
+				case 0:
+					label.SetText(strconv.FormatInt(curr.Year, 10))
+				case 1:
+					label.SetText(fmt.Sprintf("%f", curr.Avg))
+				}
+			}
+		},
+	)
+	return table
 }

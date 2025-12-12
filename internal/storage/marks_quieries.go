@@ -104,8 +104,18 @@ func (s *Storage) DeleteMark(mark models.Mark) error {
 	return err
 }
 
-func (s *Storage) GetAvgGroupRange(start, end int, name string) (avg float32, err error) {
-	query := `SELECT avg FROM get_groups_avg_year_range($1, $2, $3)`
-	err = s.pool.QueryRow(context.Background(), query, start, end, name).Scan(&avg)
+func (s *Storage) GetAvgGroupRange(start, end int, name string) (avgs []models.YearAverage, err error) {
+	query := `SELECT * FROM get_groups_avg_year_range($1, $2, $3)`
+	rows, err := s.pool.Query(context.Background(), query, start, end, name)
+	if err != nil {
+		return nil, err
+	}
+	avgs = make([]models.YearAverage, 0)
+	var year int64
+	var avg float32
+	pgx.ForEachRow(rows, []any{&year, &avg}, func() error {
+		avgs = append(avgs, models.YearAverage{year, avg})
+		return nil
+	})
 	return
 }

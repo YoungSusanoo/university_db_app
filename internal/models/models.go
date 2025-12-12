@@ -41,3 +41,8 @@ type Group struct {
 	Id   int64
 	Name string
 }
+
+type YearAverage struct {
+	Year int64
+	Avg  float32
+}
