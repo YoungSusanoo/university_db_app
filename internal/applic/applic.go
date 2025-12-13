@@ -19,7 +19,9 @@ type App struct {
 	db      *storage.Storage
 	user    *models.User
 
-	tabs *container.AppTabs
+	url    string
+	dbName string
+	tabs   *container.AppTabs
 }
 
 const (
@@ -31,13 +33,13 @@ const (
 	statsTabIndex   = 5
 )
 
-func NewApp() *App {
+func NewApp(url string, dbName string) *App {
 	a := app.New()
 	w := a.NewWindow("Сесетевой Город")
 	w.CenterOnScreen()
 	w.Resize(fyne.NewSize(1000, 800))
 
-	app := &App{a, w, nil, nil, nil}
+	app := &App{a, w, nil, nil, url, dbName, nil}
 	return app
 }
 
@@ -80,14 +82,14 @@ func (a *App) showError(err error) {
 
 func (a *App) authorize(login, password string) {
 	var err error
-	a.db, err = storage.NewStorage(fmt.Sprintf("postgres://%s:%s@localhost:5432/Megatron?sslmode=disable", login, password))
+	a.db, err = storage.NewStorage(fmt.Sprintf("postgres://%s:%s@%s/%s", login, password, a.url, a.dbName))
 	if err != nil {
-		dialog.ShowError(err, a.window)
+		a.showError(fmt.Errorf("не удалось подключиться к базе"))
 		return
 	}
 	a.user, err = a.db.Authorize(login, password)
 	if err != nil {
-		dialog.ShowError(err, a.window)
+		a.showError(fmt.Errorf("неверные логин или пароль"))
 		return
 	}
 	a.window.SetContent(a.showMainScreen())

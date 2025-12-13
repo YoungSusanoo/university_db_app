@@ -1,6 +1,7 @@
 package applic
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
 	"university_app/internal/models"
@@ -81,7 +82,7 @@ func showMarkNewForm(a *App) {
 	getNewMark(a, &markNew, func() {
 		err := a.db.InsertMark(markNew)
 		if err != nil {
-			a.showError(err)
+			a.showError(fmt.Errorf("некорректное значение оценки"))
 		} else {
 			a.tabs.Items[markTabIndex] = a.createMarksTab()
 		}
